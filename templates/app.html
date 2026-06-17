@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PrestaImport</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-900: #111827;
+      --blue-50: #eff6ff;
+      --blue-100: #dbeafe;
+      --blue-500: #3b82f6;
+      --blue-600: #2563eb;
+      --blue-700: #1d4ed8;
+      --green-50: #f0fdf4;
+      --green-500: #22c55e;
+      --green-600: #16a34a;
+      --green-700: #15803d;
+      --red-50: #fef2f2;
+      --red-500: #ef4444;
+      --red-600: #dc2626;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--gray-100);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 3rem 1rem 4rem;
+      color: var(--gray-900);
+    }
+
+    .wordmark {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .wordmark-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--gray-900);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 15px;
+    }
+
+    .wordmark-text {
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--gray-900);
+    }
+
+    .wordmark-text span {
+      color: var(--gray-400);
+      font-weight: 400;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 520px;
+      background: #fff;
+      border: 1px solid var(--gray-200);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .stepper-wrap {
+      padding: 1.5rem 2rem 1.25rem;
+      border-bottom: 1px solid var(--gray-100);
+    }
+
+    .stepper {
+      display: flex;
+      align-items: center;
+    }
+
+    .step {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .step:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      top: 13px;
+      left: 50%;
+      width: 100%;
+      height: 1px;
+      background: var(--gray-200);
+      z-index: 0;
+      transition: background 0.3s;
+    }
+
+    .step.completed:not(:last-child)::after {
+      background: var(--green-500);
+    }
+
+    .step-dot {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 1.5px solid var(--gray-200);
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--gray-400);
+      position: relative;
+      z-index: 1;
+      transition: all 0.25s;
+    }
+
+    .step-label {
+      font-size: 11px;
+      color: var(--gray-400);
+      margin-top: 6px;
+      font-weight: 500;
+      transition: color 0.25s;
+      white-space: nowrap;
+    }
+
+    .step.active .step-dot {
+      border-color: var(--blue-600);
+      background: var(--blue-600);
+      color: #fff;
+    }
+
+    .step.active .step-label {
+      color: var(--blue-600);
+    }
+
+    .step.completed .step-dot {
+      border-color: var(--green-600);
+      background: var(--green-600);
+      color: #fff;
+    }
+
+    .step.completed .step-label {
+      color: var(--green-600);
+    }
+
+    .card-body {
+      padding: 2rem;
+    }
+
+    .dropzone {
+      display: block;
+      border: 1.5px dashed var(--gray-200);
+      border-radius: 12px;
+      background: var(--gray-50);
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      margin-bottom: 1.25rem;
+    }
+
+    .dropzone:hover,
+    .dropzone.dragover {
+      border-color: var(--blue-500);
+      background: var(--blue-50);
+    }
+
+    .dropzone-icon {
+      width: 44px;
+      height: 44px;
+      background: var(--gray-100);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      font-size: 20px;
+      color: var(--gray-500);
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .dropzone:hover .dropzone-icon,
+    .dropzone.dragover .dropzone-icon {
+      background: var(--blue-100);
+      color: var(--blue-600);
+    }
+
+    .dropzone-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--gray-700);
+      margin-bottom: 4px;
+    }
+
+    .dropzone-sub {
+      font-size: 12px;
+      color: var(--gray-400);
+    }
+
+    .file-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--gray-100);
+      border: 1px solid var(--gray-200);
+      border-radius: 999px;
+      padding: 4px 12px 4px 8px;
+      font-size: 12px;
+      color: var(--gray-600);
+      margin: 0 auto 1.25rem;
+    }
+
+    .file-pill i {
+      color: var(--blue-500);
+      font-size: 14px;
+    }
+
+    .sep-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .sep-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--gray-500);
+      white-space: nowrap;
+    }
+
+    .sep-row select,
+    .sep-row input[type="text"] {
+      height: 36px;
+      border: 1px solid var(--gray-200);
+      border-radius: 8px;
+      padding: 0 10px;
+      font-size: 13px;
+      font-family: inherit;
+      color: var(--gray-700);
+      background: #fff;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .sep-row select:focus,
+    .sep-row input[type="text"]:focus {
+      border-color: var(--blue-500);
+    }
+
+    .sep-row select {
+      width: 180px;
+      cursor: pointer;
+    }
+
+    .sep-row input[type="text"] {
+      width: 90px;
+    }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      width: 100%;
+      height: 42px;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.15s, opacity 0.15s;
+      text-decoration: none;
+    }
+
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: var(--gray-900);
+      color: #fff;
+    }
+
+    .btn-primary:not(:disabled):hover {
+      background: var(--gray-700);
+    }
+
+    .btn-success {
+      background: var(--green-600);
+      color: #fff;
+    }
+
+    .btn-success:hover {
+      background: var(--green-700);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--gray-400);
+      font-size: 13px;
+      margin-top: 0.5rem;
+      border: none;
+    }
+
+    .btn-ghost:hover {
+      color: var(--gray-600);
+    }
+
+    .btn-outline-danger {
+      background: #fff;
+      color: var(--red-600);
+      border: 1px solid var(--red-500);
+    }
+
+    .btn-outline-danger:hover {
+      background: var(--red-50);
+    }
+
+    .alert {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      background: var(--red-50);
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--red-600);
+      margin-bottom: 1rem;
+    }
+
+    .alert i {
+      margin-top: 1px;
+      flex-shrink: 0;
+    }
+
+    .console-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 0.75rem;
+    }
+
+    .console-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--gray-600);
+    }
+
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid var(--gray-200);
+      border-top-color: var(--blue-500);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .console-box {
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      height: 260px;
+      overflow-y: auto;
+      font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+      font-size: 12px;
+      line-height: 1.7;
+      color: var(--gray-600);
+    }
+
+    .console-box::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .console-box::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .console-box::-webkit-scrollbar-thumb {
+      background: var(--gray-200);
+      border-radius: 4px;
+    }
+
+    .log-time {
+      color: var(--gray-300);
+      margin-right: 6px;
+    }
+
+    .log-success {
+      color: var(--green-600);
+    }
+
+    .log-error {
+      color: var(--red-500);
+    }
+
+    .complete-icon {
+      width: 56px;
+      height: 56px;
+      background: var(--green-50);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: var(--green-600);
+      margin: 0 auto 1.25rem;
+    }
+
+    .complete-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--gray-900);
+      text-align: center;
+      margin-bottom: 0.25rem;
+    }
+
+    .complete-sub {
+      font-size: 13px;
+      color: var(--gray-400);
+      text-align: center;
+      margin-bottom: 1.75rem;
+    }
+
+    .err-icon {
+      width: 56px;
+      height: 56px;
+      background: var(--red-50);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: var(--red-500);
+      margin: 0 auto 1.25rem;
+    }
+
+    .err-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--gray-900);
+      text-align: center;
+      margin-bottom: 0.25rem;
+    }
+
+    .err-sub {
+      font-size: 13px;
+      color: var(--gray-400);
+      text-align: center;
+      margin-bottom: 1.75rem;
+    }
+
+    .d-none {
+      display: none !important;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="wordmark">
+    <div class="wordmark-icon"><i class="bi bi-box-arrow-in-up"></i></div>
+    <div class="wordmark-text">Presta<span>Import</span></div>
+  </div>
+
+  <div class="card">
+
+    <div class="stepper-wrap">
+      <div class="stepper" id="stepper">
+        <div class="step" data-step="1">
+          <div class="step-dot">1</div>
+          <div class="step-label">Upload</div>
+        </div>
+        <div class="step" data-step="2">
+          <div class="step-dot">2</div>
+          <div class="step-label">Pulizia</div>
+        </div>
+        <div class="step" data-step="3">
+          <div class="step-dot">3</div>
+          <div class="step-label">Estrazione</div>
+        </div>
+        <div class="step" data-step="4">
+          <div class="step-dot">4</div>
+          <div class="step-label">Pronto</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body">
+
+      <!-- STATE A -->
+      <div id="state-a" class="state-panel">
+        <div id="errorAlert" class="alert d-none">
+          <i class="bi bi-exclamation-circle"></i>
+          <span id="errorMessage"></span>
+        </div>
+
+        <label for="fileInput" class="dropzone" id="dropzone">
+          <div class="dropzone-icon"><i class="bi bi-filetype-csv"></i></div>
+          <p class="dropzone-title">Trascina il CSV qui, o clicca per sfogliare</p>
+          <p class="dropzone-sub">Formato accettato: .csv</p>
+          <input type="file" id="fileInput" accept=".csv" style="display:none;" />
+        </label>
+
+        <div id="filePill" class="d-none" style="display:flex;justify-content:center;margin-bottom:1.25rem;">
+          <div class="file-pill">
+            <i class="bi bi-file-earmark-text"></i>
+            <span id="fileName"></span>
+          </div>
+        </div>
+
+        <div class="sep-row">
+          <span class="sep-label">Separatore</span>
+          <select id="sepSelect">
+            <option value="|" selected>|</option>
+            <option value=";">;</option>
+            <option value=",">,</option>
+            <option value="&#9;">TAB</option>
+            <option value="custom">Personalizzato…</option>
+          </select>
+          <input type="text" id="sepCustom" class="d-none" placeholder="es. ^" maxlength="3" />
+        </div>
+
+        <button type="button" class="btn btn-primary" id="startBtn" disabled>
+          <i class="bi bi-play-fill"></i> Avvia elaborazione
+        </button>
+      </div>
+
+      <!-- STATE B -->
+      <div id="state-b" class="state-panel d-none">
+        <div class="console-header">
+          <div class="spinner"></div>
+          <span class="console-title">Elaborazione in corso…</span>
+        </div>
+        <div class="console-box" id="console"></div>
+      </div>
+
+      <!-- STATE C -->
+      <div id="state-c" class="state-panel d-none">
+        <div class="complete-icon"><i class="bi bi-check-lg"></i></div>
+        <p class="complete-title">Elaborazione completata</p>
+        <p class="complete-sub">Il catalogo è pronto per l'importazione.</p>
+        <a id="downloadBtn" href="#" class="btn btn-success">
+          <i class="bi bi-file-earmark-zip"></i> Scarica catalogo (.zip)
+        </a>
+        <button type="button" class="btn btn-ghost" id="resetBtn">Elabora un altro file</button>
+      </div>
+
+      <!-- STATE ERR -->
+      <div id="state-err" class="state-panel d-none">
+        <div class="err-icon"><i class="bi bi-x-lg"></i></div>
+        <p class="err-title">Elaborazione non riuscita</p>
+        <p class="err-sub" id="errDetail"></p>
+        <button type="button" class="btn btn-outline-danger" id="retryBtn">
+          <i class="bi bi-arrow-counterclockwise"></i> Riprova
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var UPLOAD_URL = "/upload";
+      var STREAM_URL = "/stream-log/";
+      var DOWNLOAD_URL = "/scarica-zip/";
+
+      var panels = {
+        A: document.getElementById("state-a"),
+        B: document.getElementById("state-b"),
+        C: document.getElementById("state-c"),
+        ERR: document.getElementById("state-err"),
+      };
+      var steps = document.querySelectorAll("#stepper .step");
+      var dropzone = document.getElementById("dropzone");
+      var fileInput = document.getElementById("fileInput");
+      var filePill = document.getElementById("filePill");
+      var fileNameEl = document.getElementById("fileName");
+      var errorAlert = document.getElementById("errorAlert");
+      var errorMsg = document.getElementById("errorMessage");
+      var startBtn = document.getElementById("startBtn");
+      var consoleBox = document.getElementById("console");
+      var downloadBtn = document.getElementById("downloadBtn");
+      var resetBtn = document.getElementById("resetBtn");
+      var retryBtn = document.getElementById("retryBtn");
+      var errDetail = document.getElementById("errDetail");
+      var sepSelect = document.getElementById("sepSelect");
+      var sepCustom = document.getElementById("sepCustom");
+
+      var currentTaskId = null;
+      var currentSSE = null;
+
+      function setStepper(completed, active) {
+        steps.forEach(function (step) {
+          var num = parseInt(step.getAttribute("data-step"), 10);
+          step.classList.remove("active", "completed");
+          var dot = step.querySelector(".step-dot");
+          if (completed.indexOf(num) !== -1) {
+            step.classList.add("completed");
+            dot.innerHTML = '<i class="bi bi-check" style="font-size:12px;"></i>';
+          } else {
+            dot.textContent = String(num);
+          }
+          if (num === active) step.classList.add("active");
+        });
+      }
+
+      function goToState(state) {
+        Object.keys(panels).forEach(function (k) { panels[k].classList.add("d-none"); });
+        panels[state].classList.remove("d-none");
+        if (state === "A") setStepper([], 1);
+        else if (state === "B") setStepper([1], 2);
+        else if (state === "C") setStepper([1, 2, 3], 4);
+        else if (state === "ERR") setStepper([], 1);
+      }
+
+      function logLine(text, cls) {
+        var now = new Date();
+        var time = now.toTimeString().slice(0, 8);
+        var div = document.createElement("div");
+        div.innerHTML =
+          '<span class="log-time">' + time + '</span>' +
+          '<span class="' + (cls || "") + '">' + escapeHtml(text) + '</span>';
+        consoleBox.appendChild(div);
+        consoleBox.scrollTop = consoleBox.scrollHeight;
+      }
+
+      function escapeHtml(s) {
+        return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      }
+
+      sepSelect.addEventListener("change", function () {
+        if (sepSelect.value === "custom") {
+          sepCustom.classList.remove("d-none");
+          sepCustom.focus();
+        } else {
+          sepCustom.classList.add("d-none");
+        }
+      });
+
+      function getSeparatore() {
+        return sepSelect.value === "custom" ? (sepCustom.value || "|") : sepSelect.value;
+      }
+
+      ["dragenter", "dragover"].forEach(function (evt) {
+        dropzone.addEventListener(evt, function (e) { e.preventDefault(); dropzone.classList.add("dragover"); });
+      });
+      ["dragleave", "drop"].forEach(function (evt) {
+        dropzone.addEventListener(evt, function (e) { e.preventDefault(); dropzone.classList.remove("dragover"); });
+      });
+      dropzone.addEventListener("drop", function (e) {
+        if (e.dataTransfer.files.length) { fileInput.files = e.dataTransfer.files; onFileSelected(); }
+      });
+      fileInput.addEventListener("change", onFileSelected);
+
+      function onFileSelected() {
+        if (!fileInput.files.length) return;
+        fileNameEl.textContent = fileInput.files[0].name;
+        filePill.classList.remove("d-none");
+        filePill.style.display = "flex";
+        errorAlert.classList.add("d-none");
+        startBtn.disabled = false;
+      }
+
+      startBtn.addEventListener("click", function () {
+        if (!fileInput.files.length) return;
+        var fd = new FormData();
+        fd.append("upload", fileInput.files[0]);
+        fd.append("sep", getSeparatore());
+
+        startBtn.disabled = true;
+        startBtn.innerHTML = '<span style="width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;flex-shrink:0;"></span> Caricamento…';
+
+        fetch(UPLOAD_URL, { method: "POST", body: fd })
+          .then(function (res) {
+            return res.json().then(function (data) {
+              if (!res.ok) throw new Error(data.error || "Errore durante l'upload");
+              return data;
+            });
+          })
+          .then(function (data) { currentTaskId = data.task_id; startStreaming(currentTaskId); })
+          .catch(function (err) {
+            errorMsg.textContent = err.message;
+            errorAlert.classList.remove("d-none");
+            startBtn.disabled = false;
+            startBtn.innerHTML = '<i class="bi bi-play-fill"></i> Avvia elaborazione';
+          });
+      });
+
+      function startStreaming(taskId) {
+        consoleBox.innerHTML = "";
+        goToState("B");
+        if (currentSSE) { currentSSE.close(); currentSSE = null; }
+        currentSSE = new EventSource(STREAM_URL + taskId);
+
+        currentSSE.onmessage = function (event) {
+          var msg = event.data;
+          if (msg === "FINE_PROCESSO") { currentSSE.close(); currentSSE = null; checkFinalState(taskId); return; }
+          if (msg === "STEP:PULIZIA") { setStepper([1], 2); return; }
+          if (msg === "STEP:ESTRAZIONE") { setStepper([1, 2], 3); return; }
+          var cls = "";
+          if (/error|errore|fail/i.test(msg)) cls = "log-error";
+          else if (/complet|ok|rimoss|generat|costrui|salvat|creato|zip/i.test(msg)) cls = "log-success";
+          logLine(msg, cls);
+        };
+
+        currentSSE.onerror = function () { currentSSE.close(); currentSSE = null; showError("Connessione al server interrotta. Riprova."); };
+      }
+
+      function checkFinalState(taskId) {
+        fetch(DOWNLOAD_URL + taskId, { method: "HEAD" })
+          .then(function (res) {
+            if (res.ok) { downloadBtn.href = DOWNLOAD_URL + taskId; goToState("C"); }
+            else showError("File ZIP non disponibile (stato: " + res.status + ").");
+          })
+          .catch(function () { showError("Impossibile verificare il risultato."); });
+      }
+
+      function showError(msg) { errDetail.textContent = msg; goToState("ERR"); }
+
+      function resetApp() {
+        if (currentSSE) { currentSSE.close(); currentSSE = null; }
+        currentTaskId = null;
+        fileInput.value = "";
+        filePill.classList.add("d-none");
+        errorAlert.classList.add("d-none");
+        consoleBox.innerHTML = "";
+        startBtn.disabled = true;
+        startBtn.innerHTML = '<i class="bi bi-play-fill"></i> Avvia elaborazione';
+        downloadBtn.href = "#";
+        goToState("A");
+      }
+
+      resetBtn.addEventListener("click", resetApp);
+      retryBtn.addEventListener("click", resetApp);
+      goToState("A");
+    })();
+  </script>
+</body>
+
+</html>
