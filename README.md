@@ -44,6 +44,9 @@ Il progresso viene trasmesso al browser via SSE durante l'esecuzione della pipel
 
 ---
 
+## Architettura
+Vedi docs/architettura.md
+
 ## Struttura del progetto
 
 ```
