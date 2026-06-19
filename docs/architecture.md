@@ -208,7 +208,6 @@ To avoid conflicts with the pre-existing application on the same server/IP, whic
 It was tried, but it introduces unnecessary complexity when the prefix can be handled more simply and transparently directly by Apache via `ProxyPass`. With this approach, the Flask code stays agnostic of the public path — easier to maintain and easier to move to a different path in the future, by changing only the Apache configuration.
 
 ---
----
 
 <a id="prestaimport--architettura-di-deployment-italiano"></a>
 # PrestaImport — Architettura di deployment (Italiano)
