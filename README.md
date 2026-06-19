@@ -1,5 +1,114 @@
 # PrestaImport
 
+*[Italiano sotto / Italian below](#prestaimport-italiano)*
+
+A web tool that automates the full pipeline from a raw supplier CSV catalog to PrestaShop-ready import files — with real-time progress streaming in the browser.
+
+---
+
+## What it does
+
+Supplier catalogs are often messy: duplicate references, malformed HTML descriptions, inconsistent feature formatting, thousands of rows. PrestaImport takes a raw CSV and produces clean, chunked import files compatible with PrestaShop's native importer — no manual cleanup, no spreadsheet work.
+
+**Output:**
+- `prodotti/` — base product rows, one per product ID, deduplicated
+- `categorie/` — full category tree with slugs and parent mapping
+- `combinazioni/` — product combinations with attributes, EAN13, and quantities
+
+All files are packaged into a single `.zip`, ready for import.
+
+---
+
+## Pipeline
+
+```
+Upload CSV → Cleaning → Extraction → Chunk & ZIP → Download
+```
+
+1. **Cleaning** — strips invalid HTML from descriptions, normalizes feature strings, applies the Italian VAT rule (ID 53), computes discounts, fixes duplicate references
+2. **Extraction** — builds base products (one row per product), the category tree (deduplicating same-name nodes at different depths), and combinations
+3. **Chunking** — splits large DataFrames into 500-row CSV files to stay within PrestaShop's import limits
+4. **ZIP** — packages all output files, preserving the `prodotti/`, `categorie/`, `combinazioni/` folder structure
+
+---
+
+## Tech stack
+
+| Layer | Technology |
+|---|---|
+| Backend | Python, Flask |
+| Data processing | pandas |
+| Real-time streaming | Server-Sent Events (SSE) |
+| Background processing | Python `threading` |
+| Frontend | Vanilla JS, HTML/CSS (no framework) |
+
+Progress is streamed to the browser via SSE while the pipeline runs. The frontend consumes sentinel messages (`STEP:PULIZIA`, `STEP:ESTRAZIONE`, `FINE_PROCESSO`) to advance a live stepper UI without polling.
+
+---
+
+## Architecture
+See [docs/architecture.md](docs/architecture.md)
+
+## Project structure
+
+```
+new_csvhelper/
+├── app.py          # Flask app — upload, SSE stream, ZIP download routes
+├── csvapi.py       # Pipeline core — cleaning, extraction, chunking
+└── templates/
+    └── app.html    # Single-page frontend
+```
+
+---
+
+## Running locally
+
+```bash
+cd new_csvhelper
+python -m venv .venv && source .venv/bin/activate
+pip install flask pandas
+flask --app app run --debug
+```
+
+Open `http://localhost:5000`, upload a supplier CSV, select the column separator, and click **Avvia elaborazione**.
+
+---
+
+## CSV format
+
+The expected input is a pipe-separated (`|`) CSV with at least these columns:
+
+| Column | Description |
+|---|---|
+| `ID prodotto` | Unique product ID (groups combinations) |
+| `Riferimento` | SKU / supplier reference |
+| `Descrizione` | HTML product description |
+| `Caratteristiche` | Feature string (`Name:Value:Position;...`) |
+| `Categoria` | Comma-separated category path (`Parent,Child`) |
+| `Prezzo (consigliato)` | Base price |
+| `Prezzo scontato (consigliato)` | Discounted price |
+| `Nome attributo` | Combination attribute name |
+| `Valore attributo` | Combination attribute value |
+| `EAN13` | Barcode |
+| `Quantità` | Stock quantity |
+| `URL immagini` | Image URLs |
+
+The separator can be changed at upload time via the UI dropdown.
+
+---
+
+## License
+
+MIT
+
+---
+---
+
+<a id="prestaimport-italiano"></a>
+# PrestaImport (Italiano)
+
+*[English above](#prestaimport)*
+
 Uno strumento web che automatizza l'intera pipeline da un catalogo CSV grezzo di un fornitore a file pronti per l'importazione in PrestaShop — con streaming del progresso in tempo reale nel browser.
 
 ---
@@ -45,7 +154,7 @@ Il progresso viene trasmesso al browser via SSE durante l'esecuzione della pipel
 ---
 
 ## Architettura
-Vedi docs/architettura.md
+Vedi [docs/architecture.md](docs/architecture.md)
 
 ## Struttura del progetto
 
@@ -98,4 +207,3 @@ Il separatore può essere cambiato al momento dell'upload tramite il menu a tend
 ## Licenza
 
 MIT
-
