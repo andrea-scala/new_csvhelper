@@ -74,6 +74,37 @@ Open `http://localhost:5000`, upload a supplier CSV, select the column separator
 
 ---
 
+## CLI Usage
+
+`csvapi.py` can be used standalone, without the web interface. Useful for batch processing or integration into scripts.
+
+**Dry-run** (inspect output without writing files):
+```bash
+python csvapi.py -S catalogo.csv
+```
+
+**Full export** to disk:
+```bash
+python csvapi.py -S catalogo.csv -SV 1
+```
+
+**Custom separator, chunk size, and output directory:**
+```bash
+python csvapi.py -S catalogo.csv -D ";" -SV 1 -C 300 -O my_export
+```
+
+| Flag | Description | Default |
+|---|---|---|
+| `-S` | Path to the source CSV file | required |
+| `-D` | Column separator | `\|` |
+| `-SV` | Save to disk: `1` = export files, `0` = dry-run summary | `0` |
+| `-C` | Rows per output chunk | `500` |
+| `-O` | Output directory | `export` |
+
+Output is written to `<output_dir>/prodotti/`, `<output_dir>/categorie/`, and `<output_dir>/combinazioni/`.
+
+---
+
 ## CSV format
 
 The expected input is a pipe-separated (`|`) CSV with at least these columns:
@@ -178,6 +209,37 @@ flask --app app run --debug
 ```
 
 Apri `http://localhost:5000`, carica il CSV del fornitore, seleziona il separatore di colonna e clicca **Avvia elaborazione**.
+
+---
+
+## Utilizzo da CLI
+
+`csvapi.py` può essere usato in modo autonomo, senza l'interfaccia web. Utile per elaborazioni batch o integrazione in script.
+
+**Dry-run** (anteprima senza scrivere file):
+```bash
+python csvapi.py -S catalogo.csv
+```
+
+**Export completo** su disco:
+```bash
+python csvapi.py -S catalogo.csv -SV 1
+```
+
+**Separatore personalizzato, dimensione chunk e cartella di output:**
+```bash
+python csvapi.py -S catalogo.csv -D ";" -SV 1 -C 300 -O my_export
+```
+
+| Flag | Descrizione | Default |
+|---|---|---|
+| `-S` | Percorso del file CSV sorgente | obbligatorio |
+| `-D` | Separatore di colonna | `\|` |
+| `-SV` | Salvataggio: `1` = esporta file, `0` = dry-run | `0` |
+| `-C` | Righe per chunk di output | `500` |
+| `-O` | Cartella di output | `export` |
+
+L'output viene scritto in `<output_dir>/prodotti/`, `<output_dir>/categorie/` e `<output_dir>/combinazioni/`.
 
 ---
 
