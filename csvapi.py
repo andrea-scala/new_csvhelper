@@ -247,8 +247,11 @@ class CSVApi:
         una sola riga base con:
         - Campi comuni (nome, categoria, prezzo, ecc.) dalla prima riga
         - Riferimento = ID prodotto (es. "4076")
-        - Campi combinazione azzerati (Nome attributo, Valore attributo,
-          EAN13, ID prodotto + ID combinazione)
+        - Campi combinazione azzerati SOLO se il prodotto ha effettivamente
+        almeno una riga con Nome/Valore attributo valorizzati (cioè genera
+        combinazioni). Se il prodotto è "semplice" (nessuna variante),
+        EAN13 viene mantenuto sul prodotto base perché non finirebbe
+        da nessun'altra parte.
 
         :return: DataFrame con una riga per prodotto.
         """
@@ -264,11 +267,28 @@ class CSVApi:
         # Riferimento = solo ID prodotto
         df["Riferimento"] = df["ID prodotto"].astype(str)
 
-        # Azzera campi specifici della combinazione
+        # Determina quali prodotti hanno almeno una combinazione vera
+        has_variants = self.source.groupby("ID prodotto")["Nome attributo"].apply(
+            lambda s: s.notna().any() and (s.astype(str).str.strip() != "").any()
+        )
+        mask = df["ID prodotto"].map(has_variants).fillna(False)
+
+        n_with_variants = mask.sum()
+        n_simple = (~mask).sum()
+        logger.info(
+            f"Prodotti con combinazioni: {n_with_variants} — "
+            f"prodotti semplici (EAN mantenuto): {n_simple}"
+        )
+
+        # Azzera EAN13 solo dove ci sono davvero combinazioni
+        df.loc[mask, "EAN13"] = ""
+
+        # Nome/Valore attributo e ID combinazione sono sempre campi
+        # di riepilogo a livello prodotto: si azzerano sempre, che ci
+        # siano o meno combinazioni (il dettaglio va nel file combinazioni)
         df["ID prodotto + ID combinazione"] = ""
         df["Nome attributo"]                = ""
         df["Valore attributo"]              = ""
-        df["EAN13"]                         = ""
 
         logger.info(f"Prodotti base costruiti: {len(df)} righe (da {len(self.source)} combinazioni)")
         return df
